@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="script.module.mrdini.routines" name="Mr Dini's Common Routines" provider-name="Mr Dini" version="0.7.1">
+    <requires>
+        <import addon="xbmc.python" version="2.24.0"/>
+        <import addon="script.module.requests"/>
+    </requires>
+    <extension library="lib" point="xbmc.python.module"/>
+    <!-- <extension library="service.py" point="xbmc.service" start="startup"/> -->
+    <extension point="xbmc.addon.metadata">
+        <platform>all</platform>
+        <summary lang="hu">Gyakran használt kiegészítő eszköztár</summary>
+        <description lang="hu">Gyakran használt kiegészítő eszköztár Mr Dini kiegészítői számára.[CR][CR]Az ikonokat készítette Freepik a www.flaticon.com oldalról</description>
+        <!-- <disclaimer lang="hu"/> -->
+        <summary lang="en">Collection of commonly used addon routines</summary>
+        <description lang="en">Collection of commonly used addon routines used by Mr Dini.[CR][CR]Icons made by Freepik from www.flaticon.com</description>
+        <!-- <disclaimer lang="en"/> -->
+        <language/>
+        <platform>all</platform>
+        <license>GNU AFFERO GENERAL PUBLIC LICENSE. Version 3, 19 November 2007</license>
+        <forum>https://prohardver.hu/tema/kodi_xbmc_kiegeszito_magyar_nyelvu_online_filmekhe/friss.html</forum>
+        <website>https://repo.mvshrk.xyz/</website>
+        <news>See the changelog.txt</news>
+        <assets>
+            <icon>resources/assets/icons/compass.png</icon>
+            <!-- <fanart>fanart.png</fanart> -->
+            <!-- <screenshot></screenshot> -->
+    </assets>
+    </extension>
+</addon>

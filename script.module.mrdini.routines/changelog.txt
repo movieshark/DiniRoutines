@@ -1,0 +1,5 @@
+[B]0.7.1[/B]
+ - User-Agent fix for playbacks
+
+[B]0.7.0[/B]
+ - initial release
