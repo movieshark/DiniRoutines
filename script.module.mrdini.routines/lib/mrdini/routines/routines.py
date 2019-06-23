@@ -117,7 +117,7 @@ def play(handle, url, _type, **kwargs):
     description = kwargs.get("description")
     user_agent = kwargs.get("user_agent", random_uagent())
     url = "%s|User-Agent=%s" % (url, quote(user_agent))
-    
+
     item = xbmcgui.ListItem(label=name, thumbnailImage=icon, path=url)
     item.setInfo(type=_type, infoLabels={"Title": name, "Plot": description})
     if not kwargs.get("legacy_play_mode"):
