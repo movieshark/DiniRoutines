@@ -28,23 +28,26 @@ import xbmcplugin
 
 
 def request_page(url, **kwargs):
-    # type: (str, *, str, dict, dict)
+    # type: (str, *, str, dict, dict, dict, dict, dict, bool)
     """
     Basic request routine, supports GET and POST requests.
     If the `data` keyword argument is present, defaults to POST, otherwise GET request.
     """
     user_agent = kwargs.get("user_agent", random_uagent())
+    params = kwargs.get("params")
     headers = kwargs.get("headers", {})
     additional_headers = kwargs.get("additional_headers", {})
+    cookies = kwargs.get("cookies")
     data = kwargs.get("data")
+    allow_redirects = kwargs.get("allow_redirects")
 
     headers.update({"User-Agent": user_agent})
     headers.update(additional_headers)
 
     if not data:
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, params=params, headers=headers, cookies=cookies, allow_redirects=allow_redirects)
     else:
-        response = requests.post(url, data=data, headers=headers)
+        response = requests.post(url, params=params, data=data, headers=headers, cookies=cookies, allow_redirects=allow_redirects)
 
     return response
 
@@ -96,10 +99,6 @@ def add_item(plugin_prefix, handle, name, action, is_directory, **kwargs):
         # useful for livestreams to not to mark the item as watched + adds switch to channel context menu item
         # NOTE: MUST BE THE LAST PARAMETER in the URL
         url += "&pvr=.pvr"
-    if kwargs.get("is_playable"):
-        item.setProperty("IsPlayable", "true")
-    else:
-        item.setProperty("IsPlayable", "false")
     item.setArt(arts)
     item.setInfo(type="Video", infoLabels=info_labels)
     try:
@@ -118,14 +117,9 @@ def play(handle, url, _type, **kwargs):
     user_agent = kwargs.get("user_agent", random_uagent())
     url = "%s|User-Agent=%s" % (url, quote(user_agent))
 
-    item = xbmcgui.ListItem(label=name, thumbnailImage=icon, path=url)
+    item = xbmcgui.ListItem(label=name, thumbnailImage=icon)
     item.setInfo(type=_type, infoLabels={"Title": name, "Plot": description})
-    if not kwargs.get("legacy_play_mode"):
-        # the modern playback is preferred
-        xbmcplugin.setResolvedUrl(handle, True, listitem=item)
-    else:
-        # legacy playback mode (useful for old Kodis)
-        xbmc.Player().play(url, item)
+    xbmc.Player().play(url, item)
 
 
 class Error(Exception):

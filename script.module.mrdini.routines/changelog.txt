@@ -1,3 +1,8 @@
+[B]0.7.2[/B]
+ - more HTTP request parameters
+ - got rid of setResolvedUrl, would be a nice feature if Kodi won't be buggy on init
+  - old playing method has been reverted
+
 [B]0.7.1[/B]
  - User-Agent fix for playbacks
 
