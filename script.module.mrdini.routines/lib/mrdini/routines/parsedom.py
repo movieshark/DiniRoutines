@@ -137,3 +137,6 @@ def replaceHTMLCodes(txt):
     txt = txt.replace("&quot;", '"')
     txt = txt.replace("&amp;", "&")
     return txt
+
+def removeHTMLCodes(txt):
+    return re.sub("<.*?>", "", txt)
