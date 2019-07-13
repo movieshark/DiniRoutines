@@ -133,9 +133,9 @@ class Error(Exception):
 class Utils:
     def __init__(self, addon):
         self.addon = addon
-        self.addon_name = addon.getAddonInfo("name")
-        self.icon = addon.getAddonInfo("icon").encode("utf-8")
-        self.fanart = addon.getAddonInfo("fanart").encode("utf-8")
+        self.addon_name = addon.getAddonInfo("name").decode("utf-8")
+        self.icon = addon.getAddonInfo("icon").decode("utf-8")
+        self.fanart = addon.getAddonInfo("fanart").decode("utf-8")
         self.version = addon.getAddonInfo("version")
 
     def create_notification(self, description, **kwargs):
