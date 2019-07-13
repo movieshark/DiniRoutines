@@ -1,4 +1,7 @@
 [B]0.7.4[/B]
+ - Addon names shouldn't be utf-8 decoded
+
+[B]0.7.4[/B]
  - Fix non ascii path encoding
 
 [B]0.7.3[/B]
