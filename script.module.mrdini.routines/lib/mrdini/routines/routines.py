@@ -16,15 +16,40 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program. If not, see <http://www.gnu.org/licenses/>
 """
+from sys import version_info
 from traceback import format_exc
 from base64 import b64decode
 from random import choice
-from urllib import urlencode
-from urllib2 import quote
+
+if version_info[0] == 3:
+    from urllib.parse import urlencode, quote
+else:
+    from urllib import urlencode
+    from urllib2 import quote
 import requests
 import xbmc
 import xbmcgui
 import xbmcplugin
+
+
+def py2_encode(s, encoding="utf-8", errors="strict"):
+    """
+    Encode Python 2 ``unicode`` to ``str``
+    In Python 3 the string is not changed.
+    """
+    if version_info[0] == 2 and isinstance(s, unicode):
+        s = s.encode(encoding, errors)
+    return s
+
+
+def py2_decode(s, encoding="utf-8", errors="strict"):
+    """
+    Decode Python 2 ``str`` to ``unicode``
+    In Python 3 the string is not changed.
+    """
+    if version_info[0] == 2 and isinstance(s, str):
+        s = s.decode(encoding, errors)
+    return s
 
 
 def request_page(url, **kwargs):
@@ -45,9 +70,22 @@ def request_page(url, **kwargs):
     headers.update(additional_headers)
 
     if not data:
-        response = requests.get(url, params=params, headers=headers, cookies=cookies, allow_redirects=allow_redirects)
+        response = requests.get(
+            url,
+            params=params,
+            headers=headers,
+            cookies=cookies,
+            allow_redirects=allow_redirects,
+        )
     else:
-        response = requests.post(url, params=params, data=data, headers=headers, cookies=cookies, allow_redirects=allow_redirects)
+        response = requests.post(
+            url,
+            params=params,
+            data=data,
+            headers=headers,
+            cookies=cookies,
+            allow_redirects=allow_redirects,
+        )
 
     return response
 
@@ -70,7 +108,7 @@ def random_uagent():
 
 def decrypt_string(_input):
     # type: (str)
-    return b64decode(_input[6:])[7:]
+    return str(b64decode(_input[6:])[7:].decode("utf-8"))
 
 
 def add_item(plugin_prefix, handle, name, action, is_directory, **kwargs):
@@ -117,7 +155,8 @@ def play(handle, url, _type, **kwargs):
     user_agent = kwargs.get("user_agent", random_uagent())
     url = "%s|User-Agent=%s" % (url, quote(user_agent))
 
-    item = xbmcgui.ListItem(label=name, thumbnailImage=icon)
+    item = xbmcgui.ListItem(label=name)
+    item.setArt({"thumb": icon, "icon": icon})
     item.setInfo(type=_type, infoLabels={"Title": name, "Plot": description})
     xbmc.Player().play(url, item)
 

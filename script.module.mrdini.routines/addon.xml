@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="script.module.mrdini.routines" name="Mr Dini's Common Routines" provider-name="Mr Dini" version="0.7.6">
+<addon id="script.module.mrdini.routines" name="Mr Dini's Common Routines" provider-name="Mr Dini" version="0.7.7">
     <requires>
-        <import addon="xbmc.python" version="2.24.0"/>
+        <!-- <import addon="xbmc.python" version="2.24.0"/> -->
         <import addon="script.module.requests"/>
     </requires>
     <extension library="lib" point="xbmc.python.module"/>

@@ -14,17 +14,24 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
+from sys import version_info
 import re
-import HTMLParser
+
+if version_info[0] == 3:
+    import html.parser as HTMLParser
+else:
+    import HTMLParser
 
 
 def parseDOM(html, name=u"", attrs={}, ret=False):
+    if isinstance(html, bytes) and version_info[0] == 3:
+        html = html.decode("utf-8")
     if isinstance(html, str):
         try:
-            html = [html.decode("utf-8")]
+            html = [html.decode("utf-8")]  # Replace with chardet thingy
         except:
             html = [html]
-    elif isinstance(html, unicode):
+    elif isinstance(html, str if version_info[0] == 3 else unicode):
         html = [html]
     elif not isinstance(html, list):
         return u""
@@ -44,7 +51,9 @@ def parseDOM(html, name=u"", attrs={}, ret=False):
                 "(<" + name + "[^>]*?(?:" + key + "=['\"]" + attrs[key] + "['\"].*?>))",
                 re.M | re.S,
             ).findall(item)
-            if len(lst2) == 0 and attrs[key].find(" ") == -1:
+            if (
+                len(lst2) == 0 and attrs[key].find(" ") == -1
+            ):  # Try matching without quotation marks
                 lst2 = re.compile(
                     "(<" + name + "[^>]*?(?:" + key + "=" + attrs[key] + ".*?>))",
                     re.M | re.S,
@@ -54,9 +63,9 @@ def parseDOM(html, name=u"", attrs={}, ret=False):
                 lst = lst2
                 lst2 = []
             else:
-                test = range(len(lst))
+                test = list(range(len(lst)))
                 test.reverse()
-                for i in test:
+                for i in test:  # Delete anything missing from the next list.
                     if not lst[i] in lst2:
                         del lst[i]
 
@@ -78,11 +87,13 @@ def parseDOM(html, name=u"", attrs={}, ret=False):
                 for tmp in attr_lst:
                     cont_char = tmp[0]
                     if cont_char in "'\"":
+                        # Limit down to next variable.
                         if tmp.find("=" + cont_char, tmp.find(cont_char, 1)) > -1:
                             tmp = tmp[
                                 : tmp.find("=" + cont_char, tmp.find(cont_char, 1))
                             ]
 
+                        # Limit to the last quotation mark
                         if tmp.rfind(cont_char, 1) > -1:
                             tmp = tmp[1 : tmp.rfind(cont_char)]
                     else:
@@ -133,10 +144,14 @@ def parseDOM(html, name=u"", attrs={}, ret=False):
 
 def replaceHTMLCodes(txt):
     txt = re.sub("(&#[0-9]+)([^;^0-9]+)", "\\1;\\2", txt)
-    txt = HTMLParser.HTMLParser().unescape(txt)
+    if version_info[0] == 3:
+        txt = HTMLParser.unescape(txt)
+    else:
+        txt = HTMLParser.HTMLParser().unescape(txt)
     txt = txt.replace("&quot;", '"')
     txt = txt.replace("&amp;", "&")
     return txt
+
 
 def removeHTMLCodes(txt):
     return re.sub("<.*?>", "", txt)
