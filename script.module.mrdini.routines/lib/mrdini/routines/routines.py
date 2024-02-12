@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
     Generic utils for Kodi addons
-    Copyright (C) 2019 Mr Dini
+    Copyright (C) 2024 Mr Dini
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -20,11 +20,17 @@ from sys import version_info
 from traceback import format_exc
 from base64 import b64decode
 from random import choice
+from json import loads
+
+try:
+    from packaging.version import parse as version
+except (ImportError, ModuleNotFoundError):
+    # on Android packaging is not available
+    from distutils.version import LooseVersion as version
 
 if version_info[0] == 3:
-    from urllib.parse import urlencode, quote
+    from urllib.parse import quote
 else:
-    from urllib import urlencode
     from urllib2 import quote
 import requests
 import xbmc
@@ -138,6 +144,8 @@ def add_item(plugin_prefix, handle, name, action, is_directory, **kwargs):
         # NOTE: MUST BE THE LAST PARAMETER in the URL
         url += "&pvr=.pvr"
     item.setArt(arts)
+    if kwargs.get("playable"):
+        item.setProperty("IsPlayable", "true")
     item.setInfo(type="Video", infoLabels=info_labels)
     try:
         item.setContentLookup(False)
@@ -153,12 +161,32 @@ def play(handle, url, _type, **kwargs):
     icon = kwargs.get("icon")
     description = kwargs.get("description")
     user_agent = kwargs.get("user_agent", random_uagent())
+    legacy = kwargs.get("legacy", True)
+    use_isa = kwargs.get("use_isa", False)
     url = "%s|User-Agent=%s" % (url, quote(user_agent))
 
     item = xbmcgui.ListItem(label=name)
     item.setArt({"thumb": icon, "icon": icon})
     item.setInfo(type=_type, infoLabels={"Title": name, "Plot": description})
-    xbmc.Player().play(url, item)
+    if use_isa:
+        has_isa = xbmc.executeJSONRPC(
+            '{"jsonrpc":"2.0","method":"Addons.GetAddonDetails","params":{"addonid":"inputstream.adaptive",'
+            ' "properties": ["enabled", "version"]},"id":1}'
+        )
+        has_isa = loads(has_isa)
+        addon_data = has_isa.get("result", {}).get("addon", {})
+        if addon_data.get("enabled") and version(addon_data.get("version", "0.0.0")) >= version("2.0.10"):
+            item.setContentLookup(False)
+            item.setMimeType("application/vnd.apple.mpegurl")
+            item.setProperty("inputstream", "inputstream.adaptive")
+            item.setProperty("inputstream.adaptive.manifest_type", "hls")
+            item.setProperty("inputstream.adaptive.stream_headers", "User-Agent=%s" % user_agent)
+            item.setProperty("inputstream.adaptive.manifest_headers", "User-Agent=%s" % user_agent)
+    if legacy:
+        xbmc.Player().play(url, item)
+    else:
+        item.setPath(url)
+        xbmcplugin.setResolvedUrl(handle, True, item)
 
 
 class Error(Exception):
